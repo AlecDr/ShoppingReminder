@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Itens de Solução/">
+    <File Path="readme.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="ShoppingReminder.API/ShoppingReminder.API.csproj" />
     <Project Path="ShoppingReminder.Application/ShoppingReminder.Application.csproj" />
