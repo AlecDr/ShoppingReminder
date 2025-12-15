@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="ShoppingReminder.API/ShoppingReminder.API.csproj" />
+    <Project Path="ShoppingReminder.Application/ShoppingReminder.Application.csproj" />
+    <Project Path="ShoppingReminder.Domain/ShoppingReminder.Domain.csproj" />
+    <Project Path="ShoppingReminder.Infrastructure/ShoppingReminder.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="ShoppingReminder.IntegrationTests/ShoppingReminder.IntegrationTests.csproj" />
+    <Project Path="ShoppingReminder.UnitTests/ShoppingReminder.UnitTests.csproj" />
+  </Folder>
+</Solution>
