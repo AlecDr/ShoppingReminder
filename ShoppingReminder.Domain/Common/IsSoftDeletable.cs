@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ShoppingReminder.Domain.Common
 {
-    internal interface IsSoftDeletable
+    public interface IsSoftDeletable
     {
         bool IsDeleted { get; set; }
         DateTime? DeletedAt { get; set; }

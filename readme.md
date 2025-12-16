@@ -35,7 +35,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 └─────────────────────────────────────────┘
                  ▲
                  │        
-┌────--------────┴────────────────────────┐
+┌────────────────┴────────────────────────┐
 │      Infrastructure Layer               │
 │  (Database, External Services)          │
 └─────────────────────────────────────────┘
@@ -53,9 +53,9 @@ This project follows **Clean Architecture** principles with clear separation of 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **.NET 8.0**: Latest LTS version
+- **.NET 10**: Latest .NET version
 - **ASP.NET Core Web API**: RESTful API
-- **Entity Framework Core 8**: ORM
+- **Entity Framework Core 10**: ORM with code-first migrations
 - **PostgreSQL**: Primary database
 - **MediatR**: CQRS pattern implementation
 - **FluentValidation**: Request validation
@@ -72,12 +72,12 @@ This project follows **Clean Architecture** principles with clear separation of 
 
 ## 📋 Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [PostgreSQL 15+](https://www.postgresql.org/download/)
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) or [VS Code](https://code.visualstudio.com/)
+- [Visual Studio 2022 17.13+](https://visualstudio.microsoft.com/) or [VS Code](https://code.visualstudio.com/)
 - [Docker](https://www.docker.com/) (optional, for containerized PostgreSQL)
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### 1. Clone the Repository
 ```bash
@@ -85,15 +85,7 @@ git clone https://github.com/yourusername/shopping-reminder.git
 cd shopping-reminder
 ```
 
-### 2. Set Up PostgreSQL
-
-**Option A: Local Installation**
-```bash
-# Create database
-createdb ShoppingReminderDb
-```
-
-**Option B: Docker**
+### 2. Set Up Database (Docker - easiest)
 ```bash
 docker run --name postgres-shopping \
   -e POSTGRES_PASSWORD=yourpassword \
@@ -102,46 +94,47 @@ docker run --name postgres-shopping \
   -d postgres:15
 ```
 
-### 3. Configure Connection String
+### 3. Configure Secrets (never commit passwords!)
+```bash
+# Database connection
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=ShoppingReminderDb;Username=postgres;Password=YOUR_PASSWORD" --project ShoppingReminder.API/ShoppingReminder.API.csproj
 
-Update `appsettings.Development.json` in the API project:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=ShoppingReminderDb;Username=postgres;Password=yourpassword"
-  }
-}
+# JWT secret (generate a strong 32+ character key)
+dotnet user-secrets set "JwtSettings:Secret" "your-super-secret-jwt-key-min-32-chars" --project ShoppingReminder.API/ShoppingReminder.API.csproj
 ```
 
 ### 4. Run Migrations
-
-Open **Package Manager Console** in Visual Studio:
-- Set `ShoppingReminder.API` as **Startup Project**
-- Select `ShoppingReminder.Infrastructure` in console dropdown
-```powershell
-Add-Migration InitialCreate
-Update-Database
+```bash
+dotnet ef database update --project ShoppingReminder.Infrastructure/ShoppingReminder.Infrastructure.csproj
 ```
 
 ### 5. Run the API
-
-Press `F5` in Visual Studio or:
 ```bash
-cd src/ShoppingReminder.API
+cd ShoppingReminder.API
 dotnet run
 ```
 
-The API will be available at:
-- `https://localhost:7001` (HTTPS)
-- `http://localhost:5001` (HTTP)
-- Swagger UI: `https://localhost:7001/swagger`
+### 6. Open Swagger UI
+Navigate to: `https://localhost:7001/swagger`
+
+---
+
+## 📖 Detailed Setup Guide
+
+**For complete setup instructions including:**
+- PostgreSQL installation options
+- User Secrets configuration
+- JWT settings
+- Troubleshooting
+- Production deployment
+
+**👉 See [SETUP.md](SETUP.md)**
+
+---
 
 ## 📚 API Documentation
 
-Once the API is running, visit the Swagger UI at:
-```
-https://localhost:7001/swagger
-```
+Once the API is running, visit the Swagger UI at: `https://localhost:7001/swagger`
 
 ### Main Endpoints
 
@@ -176,6 +169,11 @@ https://localhost:7001/swagger
 
 ## 🧪 Testing
 
+### Run All Tests
+```bash
+dotnet test
+```
+
 ### Run Unit Tests
 ```bash
 dotnet test tests/ShoppingReminder.UnitTests
@@ -186,7 +184,7 @@ dotnet test tests/ShoppingReminder.UnitTests
 dotnet test tests/ShoppingReminder.IntegrationTests
 ```
 
-### Run All Tests with Coverage
+### Run with Coverage
 ```bash
 dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 ```
@@ -197,7 +195,7 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 - **Users**: User accounts and authentication
 - **Groups**: Collaborative groups (families, roommates)
-- **GroupMembers**: User membership in groups with roles
+- **GroupMembers**: User membership in groups with roles (Owner, Admin, Member, Viewer)
 - **ShoppingLists**: Lists within groups
 - **ShoppingItems**: Individual items in lists
 - **Invitations**: Pending group invitations
@@ -205,19 +203,34 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 ### Key Features
 
-- **Soft Deletes**: All entities support reversible deletion
+- **Soft Deletes**: All entities support reversible deletion with audit trail
 - **Audit Trail**: Track who created/modified/deleted and when
 - **Optimistic Concurrency**: Version numbers for conflict resolution
-- **Indexes**: Optimized for common queries
+- **Indexes**: Optimized for common query patterns
 
-## 🔐 Authentication & Security
+## 🔐 Security
 
-- **JWT Tokens**: Bearer token authentication
-- **Password Hashing**: BCrypt with salt
+- **JWT Tokens**: Bearer token authentication with refresh tokens
+- **Password Hashing**: Secure password hashing with BCrypt
 - **Email Verification**: Required for new accounts
 - **Role-Based Access**: Group owners, admins, members, viewers
+- **User Secrets**: Sensitive data never committed to source control
 - **Rate Limiting**: Prevent API abuse
 - **CORS**: Configured for mobile app origins
+
+### Security Best Practices
+
+⚠️ **Never commit:**
+- Connection strings with passwords
+- JWT secrets
+- API keys
+- Files with sensitive data
+
+✅ **Always use:**
+- User Secrets for local development
+- Environment Variables for production
+- Strong, random JWT secrets (minimum 32 characters)
+- Different secrets for each environment
 
 ## 📱 Mobile App (Coming Soon)
 
@@ -235,6 +248,7 @@ The Flutter mobile app will feature:
 - **Docker**: Containerized deployment
 - **Azure/AWS**: Cloud hosting
 - **Automated Migrations**: Database updates on deployment
+- **Health Checks**: Monitor application status
 
 ## 🤝 Contributing
 
@@ -248,16 +262,22 @@ This is a learning project, but contributions are welcome!
 
 ## 📝 Development Roadmap
 
-### Phase 1: MVP (Current)
+### Phase 1: Foundation ✅
 - [x] Project structure
 - [x] Clean Architecture setup
-- [ ] Domain entities
-- [ ] Database migrations
-- [ ] Basic CRUD operations
-- [ ] JWT authentication
-- [ ] User registration/login
+- [x] Domain entities
+- [x] Database migrations
+- [x] User Secrets configuration
+- [x] Soft deletes and audit trail
 
-### Phase 2: Core Features
+### Phase 2: Authentication & Authorization 🔄
+- [ ] User registration with email verification
+- [ ] Login with JWT tokens
+- [ ] Refresh token mechanism
+- [ ] Password reset flow
+- [ ] Role-based authorization
+
+### Phase 3: Core Features
 - [ ] Group management
 - [ ] Invitation system
 - [ ] Shopping lists CRUD
@@ -265,7 +285,7 @@ This is a learning project, but contributions are welcome!
 - [ ] Purchase history
 - [ ] Basic sync endpoint
 
-### Phase 3: Advanced Features
+### Phase 4: Advanced Features
 - [ ] Smart sync (delta updates)
 - [ ] Conflict resolution
 - [ ] Push notifications
@@ -273,14 +293,14 @@ This is a learning project, but contributions are welcome!
 - [ ] Templates
 - [ ] Urgent items
 
-### Phase 4: Mobile App
+### Phase 5: Mobile App
 - [ ] Flutter project setup
 - [ ] Offline database
 - [ ] API integration
 - [ ] Sync engine
 - [ ] UI/UX polish
 
-### Phase 5: Production Ready
+### Phase 6: Production Ready
 - [ ] Comprehensive testing
 - [ ] Performance optimization
 - [ ] Security audit
@@ -297,6 +317,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Alecsander**
 - Learning .NET and building real-world applications
 - Focused on clean architecture and best practices
+- Location: Sant'Ana do Livramento, RS, Brazil
 
 ## 🙏 Acknowledgments
 
@@ -305,6 +326,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Entity Framework Core guides
 - The .NET community
 
+## 📞 Support
+
+For questions or issues:
+- Open an [issue](https://github.com/yourusername/shopping-reminder/issues)
+- Check [SETUP.md](SETUP.md) for detailed configuration
+- Review existing issues for solutions
+
 ---
 
 **Note**: This is an educational project built to showcase modern .NET development practices and Clean Architecture principles.
+
+## 🌟 Star History
+
+If you find this project helpful, please consider giving it a star! ⭐
+
+---
+
+Built with ❤️ using .NET 10, PostgreSQL, and Clean Architecture

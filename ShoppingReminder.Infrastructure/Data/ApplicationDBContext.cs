@@ -32,11 +32,11 @@ public class ApplicationDbContext : DbContext
         // Apply global query filter for soft deletes
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
+            if (typeof(IsSoftDeletable).IsAssignableFrom(entityType.ClrType))
             {
                 // Create the filter expression: e => !e.IsDeleted
                 var parameter = Expression.Parameter(entityType.ClrType, "e");
-                var property = Expression.Property(parameter, nameof(ISoftDeletable.IsDeleted));
+                var property = Expression.Property(parameter, nameof(IsSoftDeletable.IsDeleted));
                 var filter = Expression.Lambda(
                     Expression.Equal(property, Expression.Constant(false)),
                     parameter
@@ -74,7 +74,7 @@ public class ApplicationDbContext : DbContext
 
                 case EntityState.Deleted:
                     // Convert hard delete to soft delete
-                    if (entry.Entity is ISoftDeletable)
+                    if (entry.Entity is IsSoftDeletable)
                     {
                         entry.State = EntityState.Modified;
                         entry.Entity.IsDeleted = true;

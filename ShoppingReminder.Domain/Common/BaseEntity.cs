@@ -9,9 +9,9 @@ namespace ShoppingReminder.Domain.Common
         public Guid Id { get; set; }
 
         public DateTime CreatedAt { get; set; }
-        public DateTime CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public DateTime UpdatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
 
 
         public bool IsDeleted { get; set; }
