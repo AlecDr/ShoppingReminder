@@ -1,12 +1,13 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using ShoppingReminder.Application.Common.Interfaces;
 using ShoppingReminder.Domain.Common;
 using ShoppingReminder.Domain.Entities;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace ShoppingReminder.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

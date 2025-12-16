@@ -20,8 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\Behaviors\" />
-    <Folder Include="Features\Authentication\Commands\Login\" />
     <Folder Include="Features\Authentication\Common\" />
   </ItemGroup>
 
